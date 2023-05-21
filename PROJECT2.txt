@@ -1,0 +1,114 @@
+#include <iostream>
+#include <windows.h>
+
+using namespace std;
+
+const int MAX_SIZE = 10;
+
+void createField(int arr[], int size) {
+    for (int i = 0; i < size; i++) {
+        int j = rand() % size;
+        swap(arr[i], arr[j]);
+    }
+}
+
+void createBoard(int board[][MAX_SIZE], int size) {
+    system("cls");
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            if (board[i][j] == -1) {
+                cout << "* ";
+            }
+            else {
+                cout << board[i][j] << " ";
+            }
+        }
+        cout << endl;
+    }
+}
+
+void playGame(int size) {
+    int board[MAX_SIZE][MAX_SIZE];
+    int field[MAX_SIZE * MAX_SIZE / 2];
+    int numfield = size * size / 2;
+    int numMoves = 0;
+    int numMatches = 0;
+    time_t startTime, endTime;
+
+
+    for (int i = 0; i < numfield; i++) {
+        field[i * 2] = i;
+        field[i * 2 + 1] = i;
+    }
+
+    srand(time(NULL));
+    createField(field, numfield * 2);
+
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            board[i][j] = -1;
+        }
+    }
+
+  
+    startTime = time(NULL);
+    while (numMatches < numfield) {
+        createBoard(board, size);
+
+    
+        int num1, num2;
+        do {
+            cout << "Введите строку и столбец первой карты: ";
+            cin >> num1 >> num2;
+        } while (num1 < 0 , num1 >= size , num2 < 0 , num2 >= size , board[num1][num2] != -1);
+
+        board[num1][num2] = field[num1 * size + num2];
+        createBoard(board, size);
+
+        int numss1, numss2;
+        do {
+            cout << "Введите строку и столбец второй карты: ";
+            cin >> numss1 >> numss2;
+        } while (numss1 < 0 , numss1 >= size , numss2 < 0, numss2 >= size , board[numss1][numss2] != -1);
+
+        board[numss1][numss2] = field[numss2 * size + numss2];
+        createBoard(board, size);
+
+        if (board[num1][num2] == board[numss1][numss2]) {
+            cout << "Соответствует!" << endl;
+            numMatches++;
+            Beep(523, 500);
+        }
+        else {
+            cout << "Не соответствует!" << endl;
+            board[num1][num2] = -1;
+            board[numss1][numss2] = -1;
+            Beep(262, 500);
+        }
+
+        numMoves++;
+        
+     
+    }
+
+    endTime = time(NULL);
+    createBoard(board, size);
+    cout << "Поздравляем!Вы выиграли " <<  endl;
+}
+
+int main() {
+    setlocale(LC_ALL, "Rus");
+    int size;
+
+    cout << "Введите размер,четное число от 2 до " << MAX_SIZE << ": ";
+    cin >> size;
+
+    if (size % 2 != 0 , size < 2 , size > MAX_SIZE) {
+        cout << "Недопустимый размер." << endl;
+        return 0;
+    }
+
+    playGame(size);
+
+    return 0;
+}
