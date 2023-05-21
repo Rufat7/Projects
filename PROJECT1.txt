@@ -1,0 +1,270 @@
+#include <iostream>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+struct Task {
+    string name;
+    int priority;
+    string description;
+    string date;
+    string time;
+};
+
+
+void addTask(Task* tasks, int& numTasks) {
+    if (numTasks >= 100) {
+        cout << "Список дел полон" << endl;
+        return;
+    }
+    Task newTask;
+    cout << "Введите название задачи: ";
+    getline(cin, newTask.name);
+    cout << "Введите приоритет задачи: ";
+    cin >> newTask.priority;
+    cin.ignore();
+    cout << "Введите описание задачи: ";
+    getline(cin, newTask.description);
+    cout << "Введите дату исполнения задачи: ";
+    getline(cin, newTask.date);
+    cout << "Введите время исполнения задачи: ";
+    getline(cin, newTask.time);
+    tasks[numTasks] = newTask;
+    numTasks++;
+    cout << "Задача добавлена" << endl;
+}
+
+
+void deleteTask(Task* tasks, int& numTasks) {
+    if (numTasks == 0) {
+        cout << "Список дел пуст" << endl;
+        return;
+    }
+    cout << "Введите номер задачи для удаления: ";
+    int index;
+    cin >> index;
+    cin.ignore();
+    if (index < 1 || index > numTasks) {
+        cout << "Неверный номер задачи" << endl;
+        return;
+    }
+    for (int i = index - 1; i < numTasks - 1; i++) {
+        tasks[i] = tasks[i + 1];
+    }
+    numTasks--;
+    cout << "Задача удалена" << endl;
+}
+
+
+void editTask(Task* tasks, int& numTasks) {
+    if (numTasks == 0) {
+        cout << "Список дел пуст" << endl;
+        return;
+    }
+    cout << "Введите номер задачи для редактирования: ";
+    int index;
+    cin >> index;
+    cin.ignore();
+    if (index < 1 || index > numTasks) {
+        cout << "Неверный номер задачи" << endl;
+        return;
+    }
+    Task& task = tasks[index - 1];
+    cout << "Введите новое название задачи (" << task.name << "): ";
+    getline(cin, task.name);
+    cout << "Введите новый приоритет задачи (" << task.priority << "): ";
+    cin >> task.priority;
+    cin.ignore();
+    cout << "Введите новое описание задачи (" << task.description << "): ";
+    getline(cin, task.description);
+    cout << "Введите новую дату исполнения задачи (" << task.date << "): ";
+    getline(cin, task.date);
+    cout << "Введите новое время исполнения задачи (" << task.time << "): ";
+    getline(cin, task.time);
+    cout << "Задача отредактирована" << endl;
+}
+
+
+void searchTasks(Task* tasks, int numTasks) {
+    if (numTasks == 0) {
+        cout << "Список дел пуст" << endl;
+        return;
+    }
+    cout << "Введите критерии поиска: " << endl;
+    Task searchTask;
+    cout << "Название: ";
+    getline(cin, searchTask.name);
+    cout << "Приоритет: ";
+    cin >> searchTask.priority;
+    cin.ignore();
+    cout << "Описание: ";
+    getline(cin, searchTask.description);
+    cout << "Дата исполнения: ";
+    getline(cin, searchTask.date);
+    cout << "Время исполнения: ";
+    getline(cin, searchTask.time);
+    cout << "Результаты поиска: " << endl;
+    bool found = false;
+    for (int i = 0; i < numTasks; i++) {
+        Task& task = tasks[i];
+        if (task.name.find(searchTask.name) != string::npos &&
+            task.priority == searchTask.priority &&
+            task.description.find(searchTask.description) != string::npos &&
+            task.date == searchTask.date &&
+            task.time == searchTask.time) {
+            cout << i + 1 << ". " << task.name << endl;
+            found = true;
+        }
+    }
+    if (!found) {
+        cout << "Задачи не найдены" << endl;
+    }
+}
+
+void sortTasksByPriority(Task* tasks, int numTasks) {
+    if (numTasks == 0) {
+        cout << "Список дел пуст" << endl;
+        return;
+    }
+    sort(tasks, tasks + numTasks, [](const Task& a, const Task& b) {
+        return a.priority > b.priority;
+        });
+    cout << "Список дел отсортирован по приоритету" << endl;
+}
+
+
+void sortTasksByDateTime(Task* tasks, int numTasks) {
+    if (numTasks == 0) {
+        cout << "Список дел пуст" << endl;
+        return;
+    }
+    sort(tasks, tasks + numTasks, [](const Task& a, const Task& b) {
+        return a.date + " " + a.time < b.date + " " + b.time;
+        });
+    cout << "Список дел отсортирован по дате и времени исполнения" << endl;
+}
+
+
+void showTasksByDay(Task* tasks, int numTasks) {
+    if (numTasks == 0) {
+        cout << "Список дел пуст" << endl;
+        return;
+    }
+    cout << "Введите дату для отображения списка дел на этот день: ";
+    string date;
+    getline(cin, date);
+    cout << "Список дел на " << date << ":" << endl;
+    bool found = false;
+    for (int i = 0; i < numTasks; i++) {
+        Task& task = tasks[i];
+        if (task.date == date) {
+            cout << i + 1 << ". " << task.name << " (приоритет " << task.priority << ")" << endl;
+            found = true;
+        }
+    }
+    if (!found) {
+        cout << "Список дел на этот день пуст" << endl;
+    }
+}
+
+
+void showTasksByWeek(Task* tasks, int numTasks) {
+    if (numTasks == 0) {
+        cout << "Список дел пуст" << endl;
+        return;
+    }
+    cout << "Введите дату начала недели для отображения списка дел на эту неделю: ";
+    string startDate;
+    getline(cin, startDate);
+    cout << "Список дел на неделю с " << startDate << " по ";
+    string endDate = startDate;
+    
+    
+    cout << endDate << ":" << endl;
+    bool found = false;
+    for (int i = 0; i < numTasks; i++) {
+        Task& task = tasks[i];
+       
+    }
+    if (!found) {
+        cout << "Список дел на эту неделю пуст" << endl;
+    }
+}
+
+void showTasksByMonth(Task* tasks, int numTasks) {
+    if (numTasks == 0) {
+        cout << "Список дел пуст" << endl;
+        return;
+    }
+    cout << "Введите месяц и год для отображения списка дел на этот месяц: ";
+    string monthYear;
+    getline(cin, monthYear);
+    cout << "Список дел на " << monthYear << ":" << endl;
+    bool found = false;
+    for (int i = 0; i < numTasks; i++) {
+        Task& task = tasks[i];
+        if (task.date.substr(3) == monthYear) {
+            cout << i + 1 << ". " << task.name << " (приоритет " << task.priority << ")" << endl;
+            found = true;
+        }
+    }
+    if (!found) {
+        cout << "Список дел на этот месяц пуст" << endl;
+    }
+}
+
+int main() {
+    setlocale(LC_ALL, "Rus");
+    Task tasks[100];
+    int numTasks = 0;
+    while (true) {
+        cout << "Выберите действие:" << endl;
+        cout << "1. Добавить задачу" << endl;
+        cout << "2. Удалить задачу" << endl;
+        cout << "3. Редактировать задачу" << endl;
+        cout << "4. Поиск задач" << endl;
+        cout << "5. Отсортировать список по приоритету" << endl;
+        cout << "6. Отсортировать список по дате и времени исполнения" << endl;
+        cout << "7. Показать список дел на день" << endl;
+        cout << "8. Показать список дел на неделю" << endl;
+        cout << "9. Показать список дел на месяц" << endl;
+        cout << "10. Выйти из программы" << endl;
+        int choice;
+        cin >> choice;
+        cin.ignore();
+        switch (choice) {
+        case 1:
+            addTask(tasks, numTasks);
+            break;
+        case 2:
+            deleteTask(tasks, numTasks);
+            break;
+        case 3:
+            editTask(tasks, numTasks);
+            break;
+        case 4:
+            searchTasks(tasks, numTasks);
+            break;
+        case 5:
+            sortTasksByPriority(tasks, numTasks);
+            break;
+        case 6:
+            sortTasksByDateTime(tasks, numTasks);
+            break;
+        case 7:
+            showTasksByDay(tasks, numTasks);
+            break;
+        case 8:
+            showTasksByWeek(tasks, numTasks);
+            break;
+        case 9:
+            showTasksByMonth(tasks, numTasks);
+            break;
+        case 10:
+            return 0;
+        default:
+            cout << "Неверный выбор" << endl;
+        }
+    }
+    return 0;
+}
